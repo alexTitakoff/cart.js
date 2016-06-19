@@ -9,6 +9,46 @@
 			background: #4F5253;
 			color: #ABB1B4;
 		}
+
+
+		a {
+			text-decoration: none;
+			color: #BF86BE;
+			font-size: 24px;
+		}
+
+
+		#clear_cart {
+			color: #BF86BE;
+			border: 2px solid #BF86BE;
+			padding: 5px 10px;
+			font-size: 18px;
+			background: transparent;
+			cursor: pointer;
+		}
+
+
+		#clear_cart:hover {
+			background: #BF86BE;
+			color: #4F5253;
+		}
+
+		#total_cart {
+			color:	#97BF63;
+		}
+
+		.delete_item {
+			background: transparent;
+			border: none;
+			color:  #ABB1B4;
+			margin-left: 20px;
+			cursor: pointer;
+			font-size: 16px;
+
+		}
+
+		
+
 	</style>
 </head>
 
@@ -19,8 +59,49 @@
 
 
 
+	<div>
+		<ul>
+			<li><a href="#"  class="add_to_cart" data-name="Apple" data-price="1.22">Apple</a></li>
+			<li><a href="#"  class="add_to_cart" data-name="Pear" data-price="3.22">Pear</a></li>
+			<li><a href="#"  class="add_to_cart" data-name="Potato" data-price="2.42">Potato</a></li>
+		</ul>
+		<button id="clear_cart">Clear Cart</button>
+	</div>
+
+	<div>
+		<ul id="show_cart">
+			
+		</ul>
+
+		<div> Totalcart:$ <span id="total_cart"></span>	</div>
+
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	<script>
+
+	//*****************************************************SHoppingCart Functions
+	//*****************************************************
 
 	//массивчик продуктов
 	var cart = [];
@@ -31,6 +112,7 @@
 		this.name = name;  // свойства объекта
 		this.price = price;
 		this.count = count;
+
 	};
 
 
@@ -41,24 +123,29 @@
 		for ( var i in cart) {
 			if(cart[i].name === name) {
 				cart[i].count += count; // при совпадающем наименовании складывается число
+				saveCart();
 				return;	
 			}
 		}
 
 
 		var item = new Item(name, price, count);
-		cart.push(item);			
+		
+		cart.push(item);	
+		
+		saveCart(); 			
 	}
+	//addItemToCart("Ваша Корзина","",1);
 
 
 
 	function removeItemFromCart(name) { // remove one item
 		for ( var i in cart)  {
 			if(cart[i].name === name) {
-				cart[i].count --;
+				cart[i].count -- ;
 				if (cart[i].count === 0) {
 
-					cart.splice(i, 1)
+					cart.splice(i, 1);
 				}
 
 				break;
@@ -71,6 +158,7 @@
 
 	function removeItemFromCartAll(name) {
 		for (var i in cart) {
+
 			if(cart[i].name === name) {
 				cart.splice(i, 1);
 				break;
@@ -101,21 +189,27 @@
 	function totalCart() {
 		var totalCost = 0;
 		for (var i in cart) {
-			totalCost += cart[i].price;
+			totalCost += cart[i].price * cart[i].count;
+
 		}
+
+		var	totalCost =	totalCost.toFixed(2);
+		
+		
 		return totalCost;
 	}
 
 	function listCart() {
 		var cartCopy = [];
-		for (i in cart) {
+		for (var i in cart) {
 			var item = cart[i];
 			var itemCopy = {};
-			for (p in item) {
+			for (var p in item) {
 				itemCopy[p] = item[p];
 			}
+			itemCopy.total = (item.price * item.count).toFixed(2); 
 			cartCopy.push(itemCopy);
-			saveCart(); // добавили функцию созранения JSON данных в LocalStorage						
+
 		}
 		return cartCopy;
 	}
@@ -124,27 +218,95 @@
 
 
 	function saveCart() {
-		localStorage.setItem("name", JSON.stringify(cart));
+		localStorage.setItem("shoppingCart", JSON.stringify(cart));
+	}  
+
+
+	function loadCart() {
+		cart =  JSON.parse(localStorage.getItem("shoppingCart"));
+
 	}
 
 
-	addItemToCart("Aplle", 1.22, 1);
-	addItemToCart("Pear", 3.22, 2);
-	addItemToCart("Aplle", 1.22, 1);
+
+	
+
+
+</script>
 
 
 
 
 
-	//console.log(cart[0].count);
-	//console.log(cart[0].count);
-	console.log(cart);
-	console.log(listCart());
-	//console.log(countCart());
-	//console.log(totalCart());
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+
+
+<script>
 
 
 
+	$(".add_to_cart").click(function(event) {
+
+		event.preventDefault();
+		var name =  $(this).attr("data-name");
+		var price = Number($(this).attr("data-price"));
+
+
+		addItemToCart(name, price , 1);
+		displayCart();
+
+		loadCart();		 
+		console.log(listCart());
+
+	});
+
+	$('#clear_cart').click(function(e) {
+		clearCart();
+		displayCart();
+	});
+
+
+	function displayCart() {
+		cartArray = listCart();
+		console.log('************display cart**********');
+		console.log('*** Count Cart :' + cartArray.length +'*****');
+		var output = "";
+
+		for (var i in cartArray) {
+			output += "<li>" 
+			+ cartArray[i].name 
+			+ " " 
+			+ cartArray[i].count 
+			+ "   /" 
+			+ cartArray[i].total 
+			+ "$" 
+			+ "<button class='delete_item' data-name='"+ cartArray[i].name +"' >x</button>"
+			+ "</li>";
+		}
+
+		$("#show_cart").html(output);		
+		$('#total_cart').html(totalCart());
+
+	}
+
+	$("#show_cart").on("click", ".delete_item",	 function(e) {
+
+		var name = $(this).attr("data-name");
+		removeItemFromCartAll(name);
+		displayCart();
+	});
+
+
+
+
+
+
+
+
+	loadCart();
+	displayCart();
 
 
 
