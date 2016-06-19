@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>CartJs</title>
+	<style>
+		
+		html{
+			background: #4F5253;
+			color: #ABB1B4;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h2>My Cart Js</h2>
+
+
+
+
+
+	<script>
+
+	//массивчик продуктов
+	var cart = [];
+
+
+	// объект
+	var Item = function (name, price, count) {
+		this.name = name;  // свойства объекта
+		this.price = price;
+		this.count = count;
+	};
+
+
+
+
+	function addItemToCart(name,price,count) {
+
+		for ( var i in cart) {
+			if(cart[i].name === name) {
+				cart[i].count += count; // при совпадающем наименовании складывается число
+				return;	
+			}
+		}
+
+
+		var item = new Item(name, price, count);
+		cart.push(item);			
+	}
+
+
+
+	function removeItemFromCart(name) { // remove one item
+		for ( var i in cart)  {
+			if(cart[i].name === name) {
+				cart[i].count --;
+				if (cart[i].count === 0) {
+
+					cart.splice(i, 1)
+				}
+
+				break;
+			}
+		}
+		saveCart(); // добавили функцию созранения JSON данных в LocalStorage
+
+	}
+
+
+	function removeItemFromCartAll(name) {
+		for (var i in cart) {
+			if(cart[i].name === name) {
+				cart.splice(i, 1);
+				break;
+			}
+		}
+		saveCart(); // добавили функцию созранения JSON данных в LocalStorage
+	}
+
+
+
+	function clearCart() {
+		cart = [];
+		saveCart(); // добавили функцию созранения JSON данных в LocalStorage
+	}
+
+
+	function countCart() {
+		var totalCount = 0;
+		for( var i in cart) {
+			totalCount += cart[i].count;
+		}
+
+		return totalCount;
+	}
+
+
+
+	function totalCart() {
+		var totalCost = 0;
+		for (var i in cart) {
+			totalCost += cart[i].price;
+		}
+		return totalCost;
+	}
+
+	function listCart() {
+		var cartCopy = [];
+		for (i in cart) {
+			var item = cart[i];
+			var itemCopy = {};
+			for (p in item) {
+				itemCopy[p] = item[p];
+			}
+			cartCopy.push(itemCopy);
+			saveCart(); // добавили функцию созранения JSON данных в LocalStorage						
+		}
+		return cartCopy;
+	}
+
+
+
+
+	function saveCart() {
+		localStorage.setItem("name", JSON.stringify(cart));
+	}
+
+
+	addItemToCart("Aplle", 1.22, 1);
+	addItemToCart("Pear", 3.22, 2);
+	addItemToCart("Aplle", 1.22, 1);
+
+
+
+
+
+	//console.log(cart[0].count);
+	//console.log(cart[0].count);
+	console.log(cart);
+	console.log(listCart());
+	//console.log(countCart());
+	//console.log(totalCart());
+
+
+
+
+
+
+</script>
+</body>
+</html>
